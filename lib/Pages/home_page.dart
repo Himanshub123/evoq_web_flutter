@@ -2,6 +2,7 @@ import 'package:evoq_web/Enum/validator_type.dart';
 import 'package:evoq_web/Model/dynamic_form_validator.dart';
 import 'package:flutter/material.dart';
 import 'package:snippet_coder_utils/FormHelper.dart';
+
 //import 'package:html_editor_enhanced/html_editor.dart';
 import 'package:dropdown_search/dropdown_search.dart';
 import '../Enum/formtype.dart';
@@ -24,6 +25,7 @@ class _HomePageState extends State<HomePage> {
   late List<DynamicModel> dynamicFormsList = [];
   late List<ItemModel> countries = [];
   late List<ItemModel> states = [];
+
   //final HtmlEditorController controller = HtmlEditorController();
   final DateRangePickerController dateRangePickerController =
       DateRangePickerController();
@@ -315,11 +317,11 @@ class _HomePageState extends State<HomePage> {
           border: const Border(bottom: BorderSide(color: Colors.grey)),
         ),
         "th": Style(
-          padding: const EdgeInsets.all(6),
+          padding: HtmlPaddings.all(6),
           backgroundColor: Colors.grey,
         ),
         "td": Style(
-          padding: const EdgeInsets.all(6),
+          padding: HtmlPaddings.all(6),
           alignment: Alignment.topLeft,
         ),
       },
@@ -362,6 +364,7 @@ class _HomePageState extends State<HomePage> {
       },
     );
   }
+
 //  Widget getHtmlEditor(index) {
 //     return HtmlEditor(
 //       controller: controller, //required

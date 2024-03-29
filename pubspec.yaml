@@ -37,9 +37,10 @@ dependencies:
   cupertino_icons: ^1.0.6
   snippet_coder_utils: ^1.0.15
   dropdown_search: ^5.0.6
-  flutter_html: ^2.2.1
+  flutter_html: ^3.0.0-beta.2
   email_validator: ^2.1.17
   syncfusion_flutter_datepicker: ^25.1.37
+  flutter_layout_grid: ^2.0.5
 
 dev_dependencies:
   flutter_test:
