@@ -153,7 +153,7 @@ class _HomePageState extends State<HomePage> {
               (MediaQuery.of(context).size.height / 1.7)),
       shrinkWrap: true,
       padding: const EdgeInsets.all(8.0), // padding around the grid
-      itemCount: dynamicFormsList.length,
+      itemCount: dynamicFormsListNew.length,
       itemBuilder: (context, index) {
         return GestureDetector(
           child: Column(
@@ -167,7 +167,7 @@ class _HomePageState extends State<HomePage> {
                       children: [
                         Flexible(
                           flex: 1,
-                          child: getWidgetBasedFormType(index),
+                          child: getWidgetBasedFormTypeNew(index),
                         ),
                       ],
                     ),
@@ -304,10 +304,10 @@ class _HomePageState extends State<HomePage> {
         if (dynamicFormsListNew[index].required == true && (value!.isEmpty)) {
           return "Please enter ${dynamicFormsListNew[index].inputLabel?.toLowerCase()}";
         } else if (dynamicFormsListNew[index].inputRegex!.isNotEmpty) {
-          // RegExp regex RegExp("${dynamicFormsListNew[index].inputRegex}");
-          // if (!regex.hasMatch(value!)) {
-          //   return 'Enter valid ${dynamicFormsListNew[index].inputLabel?.toLowerCase()}';
-          // }
+          RegExp regex = RegExp(r"${dynamicFormsListNew[index].inputRegex}");
+          if (!regex.hasMatch(value!)) {
+            return 'Enter valid ${dynamicFormsListNew[index].inputLabel?.toLowerCase()}';
+          }
         }
         return null;
       },
