@@ -1,0 +1,15 @@
+[
+    {
+      "inputLabel": "Name",
+      "inputType": "textInput",
+      "inputKey": "fname",
+      "inputHint": "Enter name",
+      "inputLength": 20,
+      "required": true,
+      "validation": "none",
+      "inputRegex": "^[A-Za-z\\s]{1,}[\\.]{0,1}[A-Za-z\\s]{0,}$",
+      "errorPrompt": "Please enter a valid name",
+      "options": [],
+      "position": 1
+    }
+  ]

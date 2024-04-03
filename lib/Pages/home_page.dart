@@ -1,6 +1,13 @@
+import 'dart:convert';
+
+import 'package:evoq_web/Enum/formtype_new.dart';
 import 'package:evoq_web/Enum/validator_type.dart';
 import 'package:evoq_web/Model/dynamic_form_validator.dart';
+import 'package:evoq_web/Model/dynamic_model_new.dart';
+import 'package:evoq_web/data/global_dynamic_model_list.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
 import 'package:snippet_coder_utils/FormHelper.dart';
 
 //import 'package:html_editor_enhanced/html_editor.dart';
@@ -23,6 +30,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   GlobalKey<FormState> globalFormKey = GlobalKey<FormState>();
   late List<DynamicModel> dynamicFormsList = [];
+  late List<DynamicModelNew> dynamicFormsListNew = [];
   late List<ItemModel> countries = [];
   late List<ItemModel> states = [];
 
@@ -38,6 +46,8 @@ class _HomePageState extends State<HomePage> {
     super.initState();
     textEditingController.text = 'dd/MM/yyyy';
     InitializeForms();
+    loadInputs();
+    print("objectssss   ${dynamicFormsListNew.length}");
   }
 
   @override
@@ -56,7 +66,7 @@ class _HomePageState extends State<HomePage> {
       key: globalFormKey,
       child: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.all(10),
+          padding: const EdgeInsets.all(100),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -65,7 +75,7 @@ class _HomePageState extends State<HomePage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  dynamicLists(),
+                  dynamicGridLists(),
                   Align(
                     alignment: Alignment.bottomRight,
                     child: FormHelper.submitButton("Save", () async {
@@ -133,6 +143,137 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  Widget dynamicGridLists() {
+    return GridView.builder(
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2, // number of items in each row
+          mainAxisSpacing: 4, // spacing between rows
+          crossAxisSpacing: 4,
+          childAspectRatio: MediaQuery.of(context).size.width /
+              (MediaQuery.of(context).size.height / 1.7)),
+      shrinkWrap: true,
+      padding: const EdgeInsets.all(8.0), // padding around the grid
+      itemCount: dynamicFormsList.length,
+      itemBuilder: (context, index) {
+        return GestureDetector(
+          child: Column(
+            children: <Widget>[
+              Row(children: <Widget>[
+                Flexible(
+                  fit: FlexFit.loose,
+                  child: Padding(
+                    padding: const EdgeInsets.all(10),
+                    child: Row(
+                      children: [
+                        Flexible(
+                          flex: 1,
+                          child: getWidgetBasedFormType(index),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ]),
+            ],
+          ),
+          onTap: () async {
+            //  selectedIndex = index;
+            //var selectedform = dynamicFormsList[index].formType;
+            //if (selectedform == FormType.HTMLReader) {
+            // final result = await Navigator.push(
+            //   context,
+            //   MaterialPageRoute(
+            //     builder: (context) =>
+            //         HTMLEditorPage(htmlText: dynamicFormsList[index].value),
+            //   ),
+            // );
+            // setState(() {
+            //   dynamicFormsList[index].value =
+            //       result ?? dynamicFormsList[index].value;
+            // });
+            // }
+          },
+        );
+      },
+    );
+  }
+
+  Widget dynamicGrid() {
+    double width = MediaQuery.of(context).size.width;
+    return GridView.extent(
+      childAspectRatio: 1,
+      maxCrossAxisExtent: width / 3, // maximum item width
+      mainAxisSpacing: 0.0, // spacing between rows
+      crossAxisSpacing: 0.0, // spacing between columns
+      padding: EdgeInsets.all(8.0), // padding around the grid
+      shrinkWrap: true,
+      children: dynamicFormsList.asMap().entries.map((entry) {
+        final index = entry.key;
+        final item = entry.value;
+        return GestureDetector(
+          child: Column(
+            children: <Widget>[
+              Row(children: <Widget>[
+                Flexible(
+                  fit: FlexFit.loose,
+                  child: Padding(
+                    padding: const EdgeInsets.all(10),
+                    child: Row(
+                      children: [
+                        Flexible(
+                          flex: 1,
+                          child: getWidgetBasedFormType(index),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ]),
+            ],
+          ),
+          onTap: () async {
+            selectedIndex = index;
+            var selectedform = dynamicFormsList[index].formType;
+            if (selectedform == FormType.HTMLReader) {
+              // final result = await Navigator.push(
+              //   context,
+              //   MaterialPageRoute(
+              //     builder: (context) =>
+              //         HTMLEditorPage(htmlText: dynamicFormsList[index].value),
+              //   ),
+              // );
+              // setState(() {
+              //   dynamicFormsList[index].value =
+              //       result ?? dynamicFormsList[index].value;
+              // });
+            }
+          },
+        );
+      }).toList(),
+    );
+  }
+
+  Widget getWidgetBasedFormTypeNew(index) {
+    print("object ${index}");
+    var form = dynamicFormsListNew[index];
+    switch (form.inputType) {
+      case "textInput":
+        return getTextWidgetNew(index);
+      default:
+        return Text("data");
+      //   case FormType.Multiline:
+      //     return getMultilineTextWidget(index);
+      //   case FormType.Dropdown:
+      //     return getDropDown(index, form.items);
+      //   case FormType.AutoComplete:
+      //     return getAutoComplete(index);
+      //   case FormType.HTMLReader:
+      //     return getHtmlReadOnly(index);
+      //   case FormType.DatePicker:
+      //     return getDatePicker(index);
+    }
+  }
+
   Widget getWidgetBasedFormType(index) {
     var form = dynamicFormsList[index];
     FormType type = form.formType;
@@ -150,6 +291,31 @@ class _HomePageState extends State<HomePage> {
       case FormType.DatePicker:
         return getDatePicker(index);
     }
+  }
+
+  TextFormField getTextWidgetNew(index) {
+    return TextFormField(
+      decoration: InputDecoration(
+          helperText: dynamicFormsListNew[index].inputHint,
+          labelText: dynamicFormsListNew[index].inputLabel,
+          border: const OutlineInputBorder(
+              borderRadius: BorderRadius.all(Radius.circular(14.0)))),
+      validator: (value) {
+        if (dynamicFormsListNew[index].required == true && (value!.isEmpty)) {
+          return "Please enter ${dynamicFormsListNew[index].inputLabel?.toLowerCase()}";
+        } else if (dynamicFormsListNew[index].inputRegex!.isNotEmpty) {
+          // RegExp regex RegExp("${dynamicFormsListNew[index].inputRegex}");
+          // if (!regex.hasMatch(value!)) {
+          //   return 'Enter valid ${dynamicFormsListNew[index].inputLabel?.toLowerCase()}';
+          // }
+        }
+        return null;
+      },
+      onChanged: (text) {
+        dynamicFormsListNew[index].inputValue = text;
+        if (isSubmitClicked) globalFormKey.currentState?.validate();
+      },
+    );
   }
 
   TextFormField getTextWidget(index) {
@@ -236,7 +402,7 @@ class _HomePageState extends State<HomePage> {
           border: const OutlineInputBorder(
               borderRadius: BorderRadius.all(Radius.circular(14.0)))),
       keyboardType: TextInputType.multiline,
-      maxLines: null,
+      maxLines: 2,
       onChanged: (text) {
         dynamicFormsList[index].controlName = text;
       },
@@ -450,5 +616,15 @@ class _HomePageState extends State<HomePage> {
     dynamicFormsList.add(DynamicModel("About", FormType.HTMLReader,
         value:
             """"<p><strong>Bold&nbsp; <span style="background-color: rgb(255, 255, 0);">BackGroundColor</span></strong></p><p style="text-align: justify;"><strong><em>Italic.</em></strong></p><p><span style="text-decoration: underline;">Underline</span></p><p><span style="color: rgb(255, 0, 0); text-decoration: inherit;">Text colour</span></p><p style="text-align: left;"><span style="color: rgb(255, 0, 0); text-decoration: inherit;">Left Alignments</span></p><p style="text-align: center;"><span style="color: rgb(255, 0, 0); text-decoration: inherit;">Centre alignments</span></p><p style="text-align: right;"><span style="color: rgb(255, 0, 0); text-decoration: inherit;">Right alignments</span></p><p style="text-align: justify;"><span style="color: rgb(255, 0, 0); text-decoration: inherit;">Alignment justify</span></p><pre><span style="color: rgb(255, 0, 0); text-decoration: inherit;"><span style="color: rgb(0, 0, 0); font-family: Heebo, &quot;open sans&quot;, sans-serif, -apple-system, BlinkMacSystemFont; font-size: 14px; font-style: normal; font-weight: 400; text-align: left; text-indent: 0px; white-space: normal; background-color: rgb(255, 255, 255); display: inline !important; float: none;">code</span><span style=" color: rgb(0, 0, 0); font-family: Heebo, &quot;open sans&quot;, sans-serif, -apple-system, BlinkMacSystemFont; font-size: 14px; font-style: normal; font-weight: 400; text-align: left; text-indent: 0px; white-space: normal;">&nbsp;</span><br></span></pre><p><span style="text-decoration: inherit;">Paragraph </span></p><ol><li><h1><span style="text-decoration: inherit;">Heading 1, </span></h1></li><li><h2><span style="text-decoration: inherit;">Heading 2, </span></h2></li><li><h3><span style="text-decoration: inherit;">Heading 3, </span></h3></li><li><h4><span style="text-decoration: inherit;">Heading 4,&nbsp;</span></h4></li></ol><blockquote><span style="text-decoration: inherit;"><span style="color: rgb(0, 0, 0); font-family: Heebo, &quot;open sans&quot;, sans-serif, -apple-system, BlinkMacSystemFont; font-size: 14px; font-style: normal; font-weight: 400; text-align: left; text-indent: 0px; white-space: normal; background-color: rgb(255, 255, 255); display: inline !important; float: none;">quotation<span>&nbsp;</span></span></span></blockquote><p><span style="text-decoration: inherit;"><span style="color: rgb(0, 0, 0); font-family: Heebo, &quot;open sans&quot;, sans-serif, -apple-system, BlinkMacSystemFont; font-size: 14px; font-style: normal; font-weight: 400; text-align: left; text-indent: 0px; white-space: normal; background-color: rgb(255, 255, 255); display: inline !important; float: none;"><span><a class="e-rte-anchor" href="https://stagingboldsign.bolddesk.com/" title="Hyper link" target="_blank">Hyper link</a></span></span></span></p><p><span style="text-decoration: inherit;"><span style="color: rgb(0, 0, 0); font-family: Heebo, &quot;open sans&quot;, sans-serif, -apple-system, BlinkMacSystemFont; font-size: 14px; font-style: normal; font-weight: 400; text-align: left; text-indent: 0px; white-space: normal; background-color: rgb(255, 255, 255); display: inline !important; float: none;"><span><img src="https://stagingboldsign.bolddesk.com/attachment/inline?token=eyJhbGciOiJodHRwOi8vd3d3LnczLm9yZy8yMDAxLzA0L3htbGRzaWctbW9yZSNobWFjLXNoYTI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjQ4ODE0Iiwib3JnaWQiOiIxIiwiaXNzIjoic3RhZ2luZ2JvbGRzaWduLmJvbGRkZXNrLmNvbSJ9.ioxUtZ5A5JnEgC7BtUfEp4pYlOayWGu7MIobDVyUGKM" class="e-rte-image e-imginline e-img-focus" alt="MicrosoftTeams-image.png" width="auto" height="auto" style="min-width: 0px; max-width: 814px; min-height: 0px;"> </span></span></span></p><p><span style="text-decoration: inherit;"> </span></p><table class="e-rte-table" style="width: 100%; min-width: 0px;"><tbody><tr><td class="" style="width: 50%;">Test 1</td><td style="width: 50%;" class=""><span style="color: rgb(0, 0, 0); font-family: Heebo, &quot;open sans&quot;, sans-serif, -apple-system, BlinkMacSystemFont; font-size: 14px; font-style: normal; font-weight: 400; text-align: left; text-indent: 0px; white-space: normal; background-color: rgb(255, 255, 255); display: inline !important; float: none;">Test 2</span><br></td></tr><tr><td style="width: 50%;" class=""><span style="color: rgb(0, 0, 0); font-family: Heebo, &quot;open sans&quot;, sans-serif, -apple-system, BlinkMacSystemFont; font-size: 14px; font-style: normal; font-weight: 400; text-align: left; text-indent: 0px; white-space: normal; background-color: rgb(255, 255, 255); display: inline !important; float: none;">Test 4</span><br></td><td style="width: 50%;" class=""><span style="color: rgb(0, 0, 0); font-family: Heebo, &quot;open sans&quot;, sans-serif, -apple-system, BlinkMacSystemFont; font-size: 14px; font-style: normal; font-weight: 400; text-align: left; text-indent: 0px; white-space: normal; background-color: rgb(255, 255, 255); display: inline !important; float: none;">Test 4</span><br></td></tr></tbody></table><pre><span style="color: rgb(255, 0, 0); text-decoration: inherit;">Coding control<br></span></pre>"""));
+  }
+
+  Future<void> loadInputs() async {
+    final String jsonString = await rootBundle.loadString('data_input.json');
+    List<dynamic> data = jsonDecode(jsonString);
+    for (int i = 0; i < data.length; i++) {
+      DynamicModelNew model = DynamicModelNew.fromJson(data[i]);
+      dynamicFormsListNew.add(model);
+    }
+    setState(() {});
   }
 }
